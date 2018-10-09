@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>Devstack deployment with DVR SNAT</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7952 2016-07-26 18:15:59Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="devstack-deployment-with-dvr-snat">
+<h1 class="title">Devstack deployment with DVR SNAT</h1>
+
+<p>This document intends to explain how to deploy Devstack multi-node in
+Rocky with DVR enabling which is useful for actual operation and development.</p>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first"><strong>Table of Contents</strong></p>
+<ul class="simple">
+<li><a class="reference internal" href="#neutron-distributed-virtual-router-dvr" id="id7">Neutron Distributed Virtual Router (DVR)</a></li>
+<li><a class="reference internal" href="#environment" id="id8">Environment</a><ul>
+<li><a class="reference internal" href="#configure-controller-network-node" id="id9">Configure Controller + Network Node</a></li>
+<li><a class="reference internal" href="#configure-compute-nodes" id="id10">Configure Compute Nodes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#devstack-deployment" id="id11">Devstack deployment</a></li>
+<li><a class="reference internal" href="#openstack-network-configuration" id="id12">Openstack Network Configuration</a></li>
+<li><a class="reference internal" href="#network-traffic-flow" id="id13">Network traffic flow</a><ul>
+<li><a class="reference internal" href="#north-south-scenario-instance-with-fixed-ip" id="id14">North-South scenario (Instance with fixed IP)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#references" id="id15">References</a></li>
+</ul>
+</div>
+<div class="section" id="neutron-distributed-virtual-router-dvr">
+<h1><a class="toc-backref" href="#id7">Neutron Distributed Virtual Router (DVR)</a></h1>
+<p>Architecture concept of High Availability with DVR <a class="footnote-reference" href="#id4" id="id1">[1]</a></p>
+<img alt="HA with DVR overview" src="figures/deploy-ovs-ha-dvr-overview.png" />
+</div>
+<div class="section" id="environment">
+<h1><a class="toc-backref" href="#id8">Environment</a></h1>
+<p>Environment</p>
+<ul class="simple">
+<li>Ubuntu 16.04.3 amd64</li>
+<li>Virtualbox installation with the following networks:<ul>
+<li>NAT network: <tt class="docutils literal">10.0.2.0/24</tt></li>
+<li>Host-only network: <tt class="docutils literal">192.168.0.0/24</tt></li>
+</ul>
+</li>
+</ul>
+<p>Topology</p>
+<img alt="Devstack nodes topology" src="figures/dvr_topo.png" />
+<p>Config network interface in <strong>/etc/network/interfaces</strong></p>
+<ul class="simple">
+<li>controller</li>
+</ul>
+<pre class="code bash literal-block">
+auto enp0s3
+iface enp0s3 inet static
+address <span class="literal number">10</span>.0.2.11
+netmask <span class="literal number">255</span>.255.255.0
+gateway <span class="literal number">10</span>.0.2.2
+dns-nameservers <span class="literal number">8</span>.8.8.8 <span class="literal number">8</span>.8.4.4
+
+auto enp0s9
+iface enp0s9 inet static
+address <span class="literal number">192</span>.168.0.11
+netmask <span class="literal number">255</span>.255.255.0
+</pre>
+<ul class="simple">
+<li>compute1</li>
+</ul>
+<pre class="code bash literal-block">
+auto enp0s3
+iface enp0s3 inet static
+address <span class="literal number">10</span>.0.2.21
+netmask <span class="literal number">255</span>.255.255.0
+gateway <span class="literal number">10</span>.0.2.2
+dns-nameservers <span class="literal number">8</span>.8.8.8 <span class="literal number">8</span>.8.4.4
+
+auto enp0s9
+iface enp0s9 inet static
+address <span class="literal number">192</span>.168.0.21
+netmask <span class="literal number">255</span>.255.255.0
+</pre>
+<ul class="simple">
+<li>compute2</li>
+</ul>
+<pre class="code bash literal-block">
+auto enp0s3
+iface enp0s3 inet static
+address <span class="literal number">10</span>.0.2.22
+netmask <span class="literal number">255</span>.255.255.0
+gateway <span class="literal number">10</span>.0.2.2
+dns-nameservers <span class="literal number">8</span>.8.8.8 <span class="literal number">8</span>.8.4.4
+
+auto enp0s9
+iface enp0s9 inet static
+address <span class="literal number">192</span>.168.0.22
+netmask <span class="literal number">255</span>.255.255.0
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If your Virtualbox machines stand behind proxy, you might need to set up
+<strong>no_proxy</strong> for host-only network that connects Openstack nodes internally.</p>
+<pre class="code bash last literal-block">
+<span class="name builtin">export</span> <span class="name variable">no_proxy</span><span class="operator">=</span>localhost,127.0.0.1,10.0.2.0/24,192.168.0.0/24
+</pre>
+</div>
+<div class="section" id="configure-controller-network-node">
+<h2><a class="toc-backref" href="#id9">Configure Controller + Network Node</a></h2>
+<p>The values for <strong>Q_DVR_MODE</strong> is set to <strong>dvr_snat</strong> (controller or single node),
+or <strong>dvr</strong> (compute node in multi-node).</p>
+<p>This is controller and network node, then <strong>n-cpu</strong> is disabled in this node</p>
+<ul class="simple">
+<li>Sample <strong>local.conf</strong> for controller + network node</li>
+</ul>
+<pre class="code yaml literal-block">
+<span class="punctuation indicator">[[</span><span class="name variable">local|localrc</span><span class="punctuation indicator">]]</span>
+<span class="literal scalar plain">ADMIN_PASSWORD=abc123</span>
+<span class="literal scalar plain">DATABASE_PASSWORD=abc123</span>
+<span class="literal scalar plain">RABBIT_PASSWORD=abc123</span>
+<span class="literal scalar plain">SERVICE_PASSWORD=$ADMIN_PASSWORD</span>
+<span class="literal scalar plain">GIT_BASE=${GIT_BASE:-https://git.openstack.org}</span>
+
+<span class="literal scalar plain">HOST_IP=192.168.0.11</span>
+
+<span class="literal scalar plain">LOGFILE=$DEST/logs/stack.sh.log</span>
+<span class="literal scalar plain">LOGDAYS=2</span>
+
+<span class="literal scalar plain">#Disable Cinder</span>
+<span class="literal scalar plain">disable_service c-api</span>
+<span class="literal scalar plain">disable_service c-vol</span>
+<span class="literal scalar plain">disable_service c-sch</span>
+
+<span class="literal scalar plain">#######################################</span>
+<span class="literal scalar plain">#Config DVR SNAT</span>
+
+<span class="literal scalar plain">MULTI_HOST=1</span> <span class="comment single"># Multi-node enabling</span>
+
+<span class="comment single">#THIS IS CONTROLLER AND NETWORK ONLY, NOT COMPUTE !!</span>
+<span class="literal scalar plain">disable_service n-cpu</span>
+
+<span class="literal scalar plain"># Settings for DVR networking, DVR depends on vxlan and ml2/ovs</span>
+<span class="literal scalar plain">Q_USE_SECGROUP=True</span>
+<span class="literal scalar plain">Q_PLUGIN=ml2</span>
+<span class="literal scalar plain">Q_ML2_TENANT_NETWORK_TYPE=vxlan</span>
+
+<span class="literal scalar plain">Q_DVR_MODE=dvr_snat</span> <span class="comment single"># In controller node, enable dvr_snat</span>
+
+<span class="punctuation indicator">[[</span><span class="name variable">post-config|/$Q_PLUGIN_CONF_FILE</span><span class="punctuation indicator">]]</span>
+<span class="punctuation indicator">[</span><span class="name variable">agent</span><span class="punctuation indicator">]</span>
+<span class="literal scalar plain">arp_responder=True</span>
+
+<span class="literal scalar plain">#######################################</span>
+<span class="literal scalar plain"># Config Neutron services</span>
+<span class="literal scalar plain">disable_service n-net</span>
+<span class="literal scalar plain">enable_plugin neutron https://git.openstack.org/openstack/neutron</span>
+
+<span class="literal scalar plain"># Enable Neutron services</span>
+<span class="literal scalar plain">ENABLED_SERVICES=q-svc,q-agt,q-dhcp,q-l3,q-meta,q-metering</span>
+
+<span class="literal scalar plain"># Enable logging service in Neutron</span>
+<span class="literal scalar plain">enable_service q-log</span>
+<span class="literal scalar plain">disable_service q-qos</span>
+
+<span class="literal scalar plain"># Enable FWaaS V2 service</span>
+<span class="literal scalar plain">enable_plugin neutron-fwaas https://git.openstack.org/openstack/neutron-fwaas master</span>
+<span class="literal scalar plain">enable_plugin neutron-fwaas-dashboard https://git.openstack.org/openstack/neutron-fwaas-dashboard master</span>
+<span class="literal scalar plain">enable_service q-fwaas-v2</span>
+
+
+<span class="literal scalar plain"># Enable logging for Firewall</span>
+<span class="literal scalar plain">[[post-config|/etc/neutron/l3_agent.ini]]</span>
+<span class="literal scalar plain">[AGENT]</span>
+<span class="literal scalar plain">extensions = fwaas_v2,fwaas_v2_log</span>
+</pre>
+</div>
+<div class="section" id="configure-compute-nodes">
+<h2><a class="toc-backref" href="#id10">Configure Compute Nodes</a></h2>
+<p>In order to enable distributed router on each compute-node, Neutron-metadata-agent
+and Neutron-L3-agent are both needed. So we need to add <strong>q-meta</strong> and <strong>q-l3</strong>
+as well as <strong>q-agt</strong> on each computer node's <strong>local.conf</strong> file.</p>
+<p>The values for Q_DVR_MODE are set to <strong>dvr_snat</strong> (controller or single node),
+or <strong>dvr</strong> (compute node in multi-node).</p>
+<ul class="simple">
+<li>Sample <strong>local.conf</strong> for compute nodes</li>
+</ul>
+<pre class="code yaml literal-block">
+<span class="punctuation indicator">[[</span><span class="name variable">local|localrc</span><span class="punctuation indicator">]]</span>
+<span class="literal scalar plain">HOST_IP=192.168.0.21</span> <span class="comment single"># change this per compute node</span>
+
+<span class="literal scalar plain">LOGFILE=/opt/stack/logs/stack.sh.log</span>
+<span class="literal scalar plain">GIT_BASE=${GIT_BASE:-https://git.openstack.org}</span>
+
+<span class="literal scalar plain">ADMIN_PASSWORD=abc123</span>
+<span class="literal scalar plain">DATABASE_PASSWORD=abc123</span>
+<span class="literal scalar plain">RABBIT_PASSWORD=abc123</span>
+<span class="literal scalar plain">SERVICE_PASSWORD=abc123</span>
+
+<span class="literal scalar plain">#######################################</span>
+<span class="literal scalar plain">#Config DVR SNAT</span>
+
+<span class="literal scalar plain">MULTI_HOST=1</span> <span class="comment single"># Multi-node enabling</span>
+
+<span class="literal scalar plain">DATABASE_TYPE=mysql</span>
+<span class="literal scalar plain">SERVICE_HOST=192.168.0.11</span>
+<span class="literal scalar plain">MYSQL_HOST=$SERVICE_HOST</span>
+<span class="literal scalar plain">RABBIT_HOST=$SERVICE_HOST</span>
+<span class="literal scalar plain">GLANCE_HOSTPORT=$SERVICE_HOST:9292</span>
+
+<span class="literal scalar plain"># Services that a compute node runs</span>
+<span class="literal scalar plain">ENABLED_SERVICES=n-cpu,n-api-meta,c-vol,placement-client,placement-api,q-agt,q-l3,q-meta,neutron</span>
+
+<span class="literal scalar plain">NOVA_VNC_ENABLED=True</span>
+<span class="literal scalar plain">NOVNCPROXY_URL=&quot;http://$SERVICE_HOST:6080/vnc_auto.html&quot;</span>
+<span class="literal scalar plain">VNCSERVER_LISTEN=$HOST_IP</span>
+<span class="literal scalar plain">VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN</span>
+
+<span class="literal scalar plain">#Enable Neutron service</span>
+<span class="literal scalar plain">disable_service n-net</span>
+
+<span class="literal scalar plain"># Settings for DVR networking, DVR depends on vxlan and ml2/ovs</span>
+<span class="literal scalar plain">Q_USE_SECGROUP=True</span>
+<span class="literal scalar plain">Q_PLUGIN=ml2</span>
+<span class="literal scalar plain">Q_ML2_TENANT_NETWORK_TYPE=vxlan</span>
+<span class="literal scalar plain">Q_DVR_MODE=dvr</span>
+
+<span class="literal scalar plain">[[post-config|/$Q_PLUGIN_CONF_FILE]]</span>
+<span class="literal scalar plain">[agent]</span>
+<span class="literal scalar plain">arp_responder=True</span>
+<span class="literal scalar plain">#######################################</span>
+
+<span class="literal scalar plain">#Disable Cinder</span>
+<span class="literal scalar plain">disable_service c-api</span>
+<span class="literal scalar plain">disable_service c-vol</span>
+<span class="literal scalar plain">disable_service c-sch</span>
+</pre>
+</div>
+</div>
+<div class="section" id="devstack-deployment">
+<h1><a class="toc-backref" href="#id11">Devstack deployment</a></h1>
+<ul>
+<li><p class="first">Install devstack with <strong>./stack.sh</strong> in <strong>controller</strong>, <strong>compute1</strong> and <strong>compute2</strong> node.</p>
+</li>
+<li><p class="first">Verify service operation</p>
+<ul class="simple">
+<li>Source the administrative project credentials.</li>
+<li>Verify presence and operation of the network agents.</li>
+</ul>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> openstack network agent list
+<span class="generic output">+--------------------------------------+--------------------+------------+-------------------+-------+-------+---------------------------+
+| ID                                   | Agent Type         | Host       | Availability Zone | Alive | State | Binary                    |
++--------------------------------------+--------------------+------------+-------------------+-------+-------+---------------------------+
+| 13535972-44dd-42f0-af66-6504de74f02b | Open vSwitch agent | compute1   | None              | :-)   | UP    | neutron-openvswitch-agent |
+| 23a89fa2-f2c9-45b2-be7d-8dfe3402ba02 | Open vSwitch agent | compute2   | None              | :-)   | UP    | neutron-openvswitch-agent |
+| 404d95e9-a5c8-4804-953e-240d7bb299f6 | Metadata agent     | compute1   | None              | :-)   | UP    | neutron-metadata-agent    |
+| 501ff96b-8459-4941-a65d-df5bbd2dfa33 | L3 agent           | compute2   | nova              | :-)   | UP    | neutron-l3-agent          |
+| 5ece9239-406a-4b76-862e-9ab6e85c1791 | Metadata agent     | controller | None              | :-)   | UP    | neutron-metadata-agent    |
+| 5f7130d1-77b7-4cc7-a6e6-f91c738de787 | Metering agent     | controller | None              | :-)   | UP    | neutron-metering-agent    |
+| 77f4602d-7f1b-4632-95e9-7a39cdc2a2ff | DHCP agent         | controller | nova              | :-)   | UP    | neutron-dhcp-agent        |
+| 8f8cc18c-5d46-4d6c-b0df-78753accec58 | Open vSwitch agent | controller | None              | :-)   | UP    | neutron-openvswitch-agent |
+| ba83cfa3-c655-4951-8d3d-99c6de065e27 | L3 agent           | controller | nova              | :-)   | UP    | neutron-l3-agent          |
+| d691a10f-4f7a-42ba-bdda-640376e50d12 | L3 agent           | compute1   | nova              | :-)   | UP    | neutron-l3-agent          |
+| dae766f2-8cf2-449b-b65a-5fc59e11621e | Metadata agent     | compute2   | None              | :-)   | UP    | neutron-metadata-agent    |
++--------------------------------------+--------------------+------------+-------------------+-------+-------+---------------------------+</span>
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li><strong>Open vSwitch agent</strong>, <strong>L3 agent</strong> and <strong>Metadata agent</strong> are still launched
+in both <strong>controller</strong>, <strong>compute1</strong> and <strong>compute2</strong>.</li>
+</ul>
+</div>
+<ul class="simple">
+<li>Verify presence and operation of the compute services.</li>
+</ul>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> openstack compute service list
+<span class="generic output">+----+------------------+------------+----------+---------+-------+----------------------------+
+| ID | Binary           | Host       | Zone     | Status  | State | Updated At                 |
++----+------------------+------------+----------+---------+-------+----------------------------+
+|  3 | nova-scheduler   | controller | internal | enabled | up    | 2018-10-09T07:00:40.000000 |
+|  6 | nova-consoleauth | controller | internal | enabled | up    | 2018-10-09T07:00:44.000000 |
+|  7 | nova-conductor   | controller | internal | enabled | up    | 2018-10-09T07:00:47.000000 |
+|  1 | nova-conductor   | controller | internal | enabled | up    | 2018-10-09T07:00:48.000000 |
+|  2 | nova-compute     | compute1   | nova     | enabled | up    | 2018-10-09T07:00:49.000000 |
+|  3 | nova-compute     | compute2   | nova     | enabled | up    | 2018-10-09T07:00:44.000000 |
++----+------------------+------------+----------+---------+-------+----------------------------+</span>
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li><strong>nova-compute</strong> only launced in <strong>compute1</strong> and <strong>compute2</strong> as configuration in <strong>controller</strong></li>
+</ul>
+</div>
+</li>
+<li><p class="first">To disable/enable compute service in compute node</p>
+</li>
+</ul>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> openstack compute service <span class="name builtin">set</span> --disable compute2 nova-compute
+<span class="generic prompt">$</span> openstack compute service list
+<span class="generic output">+----+------------------+------------+----------+----------+-------+----------------------------+
+| ID | Binary           | Host       | Zone     | Status   | State | Updated At                 |
++----+------------------+------------+----------+----------+-------+----------------------------+
+|  3 | nova-scheduler   | controller | internal | enabled  | up    | 2018-10-09T07:03:20.000000 |
+|  6 | nova-consoleauth | controller | internal | enabled  | up    | 2018-10-09T07:03:24.000000 |
+|  7 | nova-conductor   | controller | internal | enabled  | up    | 2018-10-09T07:03:17.000000 |
+|  1 | nova-conductor   | controller | internal | enabled  | up    | 2018-10-09T07:03:18.000000 |
+|  2 | nova-compute     | compute1   | nova     | enabled  | up    | 2018-10-09T07:03:19.000000 |
+|  3 | nova-compute     | compute2   | nova     | disabled | up    | 2018-10-09T07:03:24.000000 |
++----+------------------+------------+----------+----------+-------+----------------------------+</span>
+</pre>
+<ul>
+<li><p class="first">Add the compute node to the cell database <a class="footnote-reference" href="#id5" id="id2">[2]</a></p>
+<ul class="simple">
+<li>To confirm there are compute hosts in the database</li>
+</ul>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> openstack hypervisor list
+<span class="generic output">+----+---------------------+-----------------+--------------+-------+
+| ID | Hypervisor Hostname | Hypervisor Type | Host IP      | State |
++----+---------------------+-----------------+--------------+-------+
+|  1 | compute1            | QEMU            | 192.168.0.21 | up    |
+|  2 | compute2            | QEMU            | 192.168.0.22 | up    |
++----+---------------------+-----------------+--------------+-------+</span>
+</pre>
+<ul class="simple">
+<li>When you add new compute nodes, you must run <tt class="docutils literal"><span class="pre">nova-manage</span> cell_v2 discover_hosts</tt>
+on the controller node to register those new compute nodes.To discover compute
+hosts, run the following commands on the controller node:</li>
+</ul>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> su -s /bin/sh -c <span class="literal string double">&quot;nova-manage cell_v2 discover_hosts --verbose&quot;</span> stack
+<span class="generic output">Password:
+/usr/local/lib/python2.7/dist-packages/psycopg2/__init__.py:144: UserWarning: The psycopg2 wheel package will be renamed from release 2.8; in order to keep installing from binary please use &quot;pip install psycopg2-binary&quot; instead. For details see: &lt;http://initd.org/psycopg/docs/install.html#binary-install-from-pypi&gt;.
+  &quot;&quot;&quot;)
+Found 2 cell mappings.
+Skipping cell0 since it does not contain hosts.
+Getting computes from cell 'cell1': 1d71bb46-e9f3-48b4-8f2c-5b835fbb5420
+Found 2 unmapped computes in cell: 1d71bb46-e9f3-48b4-8f2c-5b835fbb5420</span>
+</pre>
+</li>
+</ul>
+</div>
+<div class="section" id="openstack-network-configuration">
+<h1><a class="toc-backref" href="#id12">Openstack Network Configuration</a></h1>
+<p>The following script is able to deploy Neutron networks with DVR router</p>
+<pre class="code console literal-block">
+<span class="generic prompt">#</span> Create net0 with subnet subnet0
+<span class="generic output">openstack network create --share net0
+openstack subnet create subnet0 --ip-version 4 --gateway 10.10.0.1 --network net0 --subnet-range 10.10.0.0/24
+
+</span><span class="generic prompt">#</span> Create net1 with subnet subnet1
+<span class="generic output">openstack network create --share net1
+openstack subnet create subnet1 --ip-version 4 --gateway 10.10.1.1 --network net1 --subnet-range 10.10.1.0/24
+
+</span><span class="generic prompt">#</span> Create router router0 and attach subnet0, subnet1 to router0
+<span class="generic output">openstack router create router0
+openstack router add subnet router0 subnet0
+openstack router add subnet router0 subnet1
+
+</span><span class="generic prompt">#</span> Create vm0, vm1 and attach to net0, net1
+<span class="generic output">openstack server create  vm0 --image cirros-0.3.5-x86_64-disk --flavor m1.tiny --network net0 --availability-zone nova:compute1:compute1
+openstack server create  vm1 --image cirros-0.3.5-x86_64-disk --flavor m1.tiny --network net1 --availability-zone nova:compute2:compute2</span>
+</pre>
+<p>The Neutron networks and router interfaces should look like:</p>
+<img alt="Devstack Topology with router infomation" src="figures/devstack_topo.PNG" />
+<p>In DVR implementation, SNAT namespace is created in network node by default.</p>
+<p>From <strong>controller</strong>,</p>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> openstack router list
+<span class="generic output">+--------------------------------------+---------+--------+-------+-------------+-------+----------------------------------+
+| ID                                   | Name    | Status | State | Distributed | HA    | Project                          |
++--------------------------------------+---------+--------+-------+-------------+-------+----------------------------------+
+| 2998ef0e-9fe3-4f60-ba55-dbd631518538 | router0 | ACTIVE | UP    | True        | False | 2b6956584a4a456fafe52707c5961f07 |
++--------------------------------------+---------+--------+-------+-------------+-------+----------------------------------+
+
+</span><span class="generic prompt">$</span> ip netns
+<span class="generic output">snat-2998ef0e-9fe3-4f60-ba55-dbd631518538
+qrouter-2998ef0e-9fe3-4f60-ba55-dbd631518538
+qdhcp-aa938ea7-fb9b-4aaa-a78a-2ca02624e737
+fip-cd1abffe-1b36-49db-944d-5353e930a4df
+qdhcp-1f9030b6-50ff-4c24-9152-c48fe6eee55b</span>
+</pre>
+<p>In <strong>compute1</strong> and <strong>compute2</strong>, <strong>qrouter-*</strong> namespace is also created. Note
+that there is no SNAT namespace in compute nodes.</p>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> virsh list
+<span class="generic output"> Id    Name                           State
+----------------------------------------------------
+ 1     instance-00000002              running
+
+</span><span class="generic prompt">$</span> ip netns
+<span class="generic output">fip-cd1abffe-1b36-49db-944d-5353e930a4df
+qrouter-2998ef0e-9fe3-4f60-ba55-dbd631518538</span>
+</pre>
+<p>In this guide, we set up North-South traffic to check SNAT operation in DVR router.
+In particular, we <strong>ping</strong> from <strong>10.10.0.4</strong> (vm0) to external network address
+<strong>172.24.4.1</strong> (br-ex). The results show as bellow:</p>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> ifconfig
+<span class="generic output">eth0      Link encap:Ethernet  HWaddr FA:16:3E:2D:4C:F6
+          inet addr:10.10.0.4  Bcast:10.0.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::f816:3eff:fe2d:4cf6/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1450  Metric:1
+          RX packets:95 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:104 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:9662 (9.4 KiB)  TX bytes:10258 (10.0 KiB)
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+</span><span class="generic prompt">$</span> ping <span class="literal number">172</span>.24.4.1
+<span class="generic output">PING 172.24.4.1 (172.24.4.1): 56 data bytes
+64 bytes from 172.24.4.1: seq=0 ttl=63 time=2.559 ms
+64 bytes from 172.24.4.1: seq=1 ttl=63 time=3.272 ms
+64 bytes from 172.24.4.1: seq=2 ttl=63 time=2.416 ms
+
+--- 172.24.4.1 ping statistics ---
+5 packets transmitted, 5 packets received, 0% packet loss
+round-trip min/avg/max = 2.128/2.555/3.272 ms</span>
+</pre>
+<p>Iptables statistic change in SNAT namespace</p>
+<pre class="code console literal-block">
+<span class="generic prompt">$</span> sudo ip netns <span class="name builtin">exec</span> snat-2998ef0e-9fe3-4f60-ba55-dbd631518538 iptables -t nat -nvL
+<span class="generic output">Chain PREROUTING (policy ACCEPT 10 packets, 1256 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+   10  1256 neutron-l3-agent-PREROUTING  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+
+Chain INPUT (policy ACCEPT 2 packets, 636 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 neutron-l3-agent-OUTPUT  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+
+Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    8   620 neutron-l3-agent-POSTROUTING  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+    8   620 neutron-postrouting-bottom  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+
+Chain neutron-l3-agent-OUTPUT (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain neutron-l3-agent-POSTROUTING (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  !qg-41aabfc4-b5 !qg-41aabfc4-b5  0.0.0.0/0            0.0.0.0/0            ! ctstate DNAT
+
+Chain neutron-l3-agent-PREROUTING (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain neutron-l3-agent-float-snat (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain neutron-l3-agent-snat (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+    8   620 neutron-l3-agent-float-snat  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+    8   620 SNAT       all  --  *      qg-41aabfc4-b5  0.0.0.0/0            0.0.0.0/0            to:172.24.4.5
+    0     0 SNAT       all  --  *      *       0.0.0.0/0            0.0.0.0/0            mark match ! 0x2/0xffff ctstate DNAT to:172.24.4.5
+
+Chain neutron-postrouting-bottom (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+    8   620 neutron-l3-agent-snat  all  --  *      *       0.0.0.0/0            0.0.0.0/0            /* Perform source NAT on outgoing traffic. */</span>
+</pre>
+</div>
+<div class="section" id="network-traffic-flow">
+<h1><a class="toc-backref" href="#id13">Network traffic flow</a></h1>
+<p>The DVR communication scenarios could be devided into four types:</p>
+<ul class="simple">
+<li>Same Subnet / Different compute-node</li>
+<li>Different Subnet / Different compute-node</li>
+<li>SNAT (Instance with fixed IP)</li>
+<li>Floating-IP</li>
+</ul>
+<p>In this guide, we focus on North-South scenario with SNAT (Instance with fixed IP)</p>
+<div class="section" id="north-south-scenario-instance-with-fixed-ip">
+<h2><a class="toc-backref" href="#id14">North-South scenario (Instance with fixed IP)</a></h2>
+<p>When DVR router is created with SNAT enabling, the following namespace is added:</p>
+<ul class="simple">
+<li>In <strong>controller</strong><ul>
+<li>snat-$router_id</li>
+<li>qrouter-$router_id</li>
+</ul>
+</li>
+<li>In <strong>compute1</strong>, <strong>compute2</strong><ul>
+<li>qrouter-$router_id</li>
+</ul>
+</li>
+</ul>
+<p>In the case of SNAT, SNAT processing (iptables) is executed in <strong>snat-$router0_id</strong> namespace in network node</p>
+<p>The Packet Flow should look like the following figure <a class="footnote-reference" href="#id6" id="id3">[3]</a>:</p>
+<img alt="Traffic flow in North-South scenario" src="figures/deploy-ovs-ha-dvr-flowns1.png" />
+<ul class="simple">
+<li>In compute node<ul>
+<li>Instance (1) -&gt; SG bridge (2) -&gt; SG firewall (3) -&gt; OVS br-int (5)</li>
+<li>OVS br-int add an internal VLAN tag to the packet</li>
+<li>OVS br-int exchange the internal VLAN tag to internal tunnel ID and forward packet to br-tun (6) (7)</li>
+<li>br-tun wraps packet with VNI 101 (8) and forward wrapped packet to br-tun in network node (9) (10) (11) (12)</li>
+</ul>
+</li>
+<li>In network node<ul>
+<li>br-tun unwraps packet and add an internal ID to it.</li>
+<li>br-tun exchanges internal tunnel ID with an internal VLAN tag and forward packet to br-int (13)(14)</li>
+<li>br-int removes internal VLAN tag (15) and forward to self-service network interface (16) in router namespace.<ul>
+<li>IPv4: router namespace performs SNAT (change source IP to router IP on provider network) and send it to gateway IP address on provider network (17)</li>
+<li>IPv6: router sends packet to the next-hop IP address</li>
+</ul>
+</li>
+<li>Router forwards packet to provider network (18) (19) (20)</li>
+<li>The br-provider swaps the internal VLAN tag with actual VLAN tag 101 and forwards packet to the physical network interface (21) (22)</li>
+<li>The physical network forwards packet to the Internet (23)</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="references">
+<h1><a class="toc-backref" href="#id15">References</a></h1>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://docs.openstack.org/neutron/pike/admin/deploy-ovs-ha-dvr.html#architecture">https://docs.openstack.org/neutron/pike/admin/deploy-ovs-ha-dvr.html#architecture</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="https://docs.openstack.org/ocata/install-guide-rdo/nova-compute-install.html#add-the-compute-node-to-the-cell-database">https://docs.openstack.org/ocata/install-guide-rdo/nova-compute-install.html#add-the-compute-node-to-the-cell-database</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="https://docs.openstack.org/neutron/pike/admin/deploy-ovs-ha-dvr.html#north-south-scenario-1-instance-with-a-fixed-ip-address">https://docs.openstack.org/neutron/pike/admin/deploy-ovs-ha-dvr.html#north-south-scenario-1-instance-with-a-fixed-ip-address</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>
